@@ -1,9 +1,3 @@
-<script lang="ts" setup>
-import { ref } from 'vue'
-
-const activeIndex = ref('/')
-</script>
-
 <template>
   <el-menu
     :router="true"
@@ -20,3 +14,8 @@ const activeIndex = ref('/')
   </el-menu>
 </template>
 
+<script lang="ts" setup>
+import { ref } from 'vue'
+
+const activeIndex = ref('/')
+</script>

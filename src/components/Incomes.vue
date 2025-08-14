@@ -21,31 +21,48 @@
     </el-form-item>
     <el-button @click="clearFilter">Сбросить фильтр</el-button>
   </el-form>
+
   
   <el-table
   v-if="incomes"
   ref="tableRef"
-  :data="filteredIncomes"
+  :data="(filteredIncomes||[]).slice((page-1)*limit, page*limit)"
   style="width: 100%"
   >
     <el-table-column
       prop="date"
       label="Дата"
-      sortable
       column-key="date"
     />
-    <el-table-column sortable prop="warehouse_name" label="Наименование склада" />
-    <el-table-column sortable prop="quantity" label="Количество" />
+    <el-table-column prop="warehouse_name" label="Наименование склада" />
+    <el-table-column prop="quantity" label="Количество" />
     <el-table-column prop="barcode" label="Штрих-код" />
 
   </el-table>
+
+  <el-pagination
+    background
+    layout="prev, pager, next"
+    :total="(filteredIncomes||[]).length"
+    class="mt-4"
+    :hide-on-single-page="(filteredIncomes||[]).length"
+    @currentChange="(val: number)=>{page = val}"
+  />
+
+  <BarChart 
+    :key="chartData.length"
+    :data="chartData"
+  />
+
 </template>
 
 <script setup lang="ts">
 import {ref, reactive, watch} from 'vue';
 import type { Ref } from 'vue';
-import type { TableColumnCtx, TableInstance } from 'element-plus';
+import type { TableInstance } from 'element-plus';
+import BarChart from './BarChart.vue';
 import moment from 'moment';
+
 interface Income {
   'barcode': number,
   'date': string,
@@ -61,14 +78,38 @@ interface Income {
   'warehouse_name': string
 }
 
+type TData = {[date: string]: {
+  [key: string]: number
+}}
+
 const incomes: Ref<Income[] | null> = ref(null);
 const filteredIncomes: Ref<Income[] | null> = ref(incomes.value);
 const tableRef = ref<TableInstance>();
+const chartData = ref();
+const limit = 10;
+const page = ref(1);
 
 const filters = reactive({
   date: [moment().subtract(7, 'days').format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')],
   name: ''
 });
+
+const prepareChartData = () => {
+  if(!incomes.value) {
+     chartData.value = []
+     return
+  }
+  const data: TData = {};
+
+  (incomes.value || []).forEach(item => {
+    const msUTC = moment(item.date).valueOf();
+    if(!data[msUTC]) data[msUTC] = {};
+    if(!data[msUTC][item.warehouse_name]) data[msUTC][item.warehouse_name] = 0;
+    data[msUTC][item.warehouse_name] += item.quantity;
+  });
+
+  chartData.value = Object.keys(data).sort().map(date => ({date: moment(+date).format('YYYY-MM-DD'), ...data[date]}));
+}
 
 const runFilter = () => {
   if (!filters.name) {
@@ -83,8 +124,8 @@ const clearFilter = () => {
   runFilter();
 }
 
-
 const getIncomes = async () => {
+  if(!filters.date) return;
   const [dateFrom, dateTo] = filters.date;
   try {
     const response = await fetch(`http://109.73.206.144:6969/api/incomes?dateFrom=${dateFrom}&dateTo=${dateTo}&key=E6kUTYrYwZq2tN4QEtyzsbEBk3ie`);
@@ -93,6 +134,7 @@ const getIncomes = async () => {
     }
     const data = await response.json();
     incomes.value = data.data;
+    
     runFilter();
   } catch (e) {
     console.log((e as Error).message);
@@ -101,15 +143,25 @@ const getIncomes = async () => {
 }
 getIncomes();
 
+watch(()=>incomes, prepareChartData, {deep: true});
 </script>
 
 <style>
+form.el-form {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
 div.el-form-item {
   margin-top: 20px;
   margin-bottom: 20px;
 }
 
 button.el-button {
+  margin: 20px 0;
+}
+
+div.el-pagination {
   margin: 20px 0;
 }
 </style>
