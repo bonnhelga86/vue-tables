@@ -16,10 +16,9 @@
 
 <script lang="ts" setup>
 import { ref, computed } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRouter } from 'vue-router';
 
-const route = useRoute();
-const currentRouteName = computed(() => route.name)
-console.log('currentRouteName', currentRouteName)
+const router = useRouter();
+const currentRouteName = computed(() => router.currentRoute.value.fullPath)
 const activeIndex = ref(currentRouteName);
 </script>

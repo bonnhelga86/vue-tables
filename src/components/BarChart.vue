@@ -44,7 +44,7 @@ const { data } = defineProps(['data']);
 const chartData = ref(data);
 
 const getBars = computed(() => {
-  return Object.keys((chartData.value || []).reduce((acc, item) => {
+  return Object.keys((chartData.value || []).reduce((acc: Record<string, boolean>, item: Record<string, string|number>) => {
     const {date, ...other} = item;
     Object.keys(other).forEach((name) => acc[name] = true);
     return acc;

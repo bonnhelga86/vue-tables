@@ -3,13 +3,14 @@
     <el-form-item label="">
       <el-date-picker
         v-model="filters.date"
-        type="daterange"
+        type="date"
         start-placeholder="Start Date"
         end-placeholder="End Date"
         format="YYYY-MM-DD"
         value-format="YYYY-MM-DD"
         :default-value="filters.date"
         @change="getStocks"
+        disabled
       />
     </el-form-item>
     <el-form-item label="" prop="name">
@@ -96,7 +97,7 @@ const limit = 10;
 const page = ref(1);
 
 const filters = reactive({
-  date: [moment().format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')],
+  date: moment().format('YYYY-MM-DD'),
   name: ''
 });
 
@@ -130,9 +131,8 @@ const clearFilter = () => {
 
 const getStocks = async () => {
   if(!filters.date) return;
-  const [dateFrom, dateTo] = filters.date;
   try {
-    const response = await fetch(`http://109.73.206.144:6969/api/stocks?dateFrom=${dateFrom}&dateTo=${dateTo}&key=E6kUTYrYwZq2tN4QEtyzsbEBk3ie`);
+    const response = await fetch(`http://109.73.206.144:6969/api/stocks?dateFrom=${filters.date}&key=E6kUTYrYwZq2tN4QEtyzsbEBk3ie`);
     if (!response.ok) {
       throw new Error(`Ошибка HTTP: ${response.status}`);
     }

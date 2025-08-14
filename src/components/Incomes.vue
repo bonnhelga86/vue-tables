@@ -132,12 +132,12 @@ const getIncomes = async () => {
     if (!response.ok) {
       throw new Error(`Ошибка HTTP: ${response.status}`);
     }
-    const data = await response.json();
-    incomes.value = data.data;
+    const { data = [] } = await response.json();
+    incomes.value = data;
     
     runFilter();
   } catch (e) {
-    console.log((e as Error).message);
+    console.error(e);
   }
   return incomes;
 }
