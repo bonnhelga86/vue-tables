@@ -35,8 +35,9 @@
       column-key="date"
     />
     <el-table-column prop="warehouse_name" label="Наименование склада" />
-    <el-table-column prop="total_price" label="Количество" />
-    <el-table-column prop="oblast" label="Штрих-код" />
+    <el-table-column prop="total_price" label="Стоимость" />
+    <el-table-column prop="discount_percent" label="Скидка, %" />
+    <el-table-column prop="oblast" label="Область" />
 
   </el-table>
 
@@ -111,9 +112,7 @@ const prepareChartData = () => {
     data[msUTC] += +item.total_price;
   });
 
-  console.log('data in orders', data)
-
-  chartData.value = Object.keys(data).sort().map(date => ({date: moment(+date).format('YYYY-MM-DD'), total_price: Math.round(data[date])}));
+  chartData.value = Object.keys(data).sort().map(date => ({key: moment(+date).format('YYYY-MM-DD'), value: Math.round(data[date])}));
 }
 
 const runFilter = () => {
@@ -147,7 +146,6 @@ const getOrders = async () => {
 }
 getOrders();
 
-console.log('orders', orders)
 watch(()=>orders, prepareChartData, {deep: true});
 </script>
 

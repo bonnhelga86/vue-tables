@@ -15,7 +15,11 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue';
+import { useRoute } from 'vue-router';
 
-const activeIndex = ref('/')
+const route = useRoute();
+const currentRouteName = computed(() => route.name)
+console.log('currentRouteName', currentRouteName)
+const activeIndex = ref(currentRouteName);
 </script>

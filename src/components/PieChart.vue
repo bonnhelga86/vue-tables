@@ -15,14 +15,14 @@
         >
         <template #layers>
           <Pie
-            :dataKeys="['date', 'total_price']"
+            :dataKeys="['key', 'value']"
             :pie-style="{ innerRadius: 100, padAngle: 0.05 }" />
         </template>
         <template #widgets>
           <Tooltip
             :config="{
-              total_price: { },
-              date: { label: 'value' },
+              value: { },
+              key: { label: 'key' },
             }"
             hideLine
           />
@@ -37,6 +37,5 @@ import { ref } from 'vue';
 import { Chart, Responsive, Pie, Tooltip } from 'vue3-charts';
 
 const { data } = defineProps(['data']);
-console.log('data', data)
 const chartData = ref(data);
 </script>
